@@ -30,4 +30,5 @@ chmod -R 755 /var/www/detectorWebInterface/*
 ```
 ## Resources
 [Setting up a Wifi Dongle on the raspberryPi](https://gist.github.com/ahruschka/4ae8e51a4af98182195cd9286a39a1c6)
+
 [Fixing the date on GSU NTP servers](https://gist.github.com/ahruschka/4d7949a97257172971481bec3c902bca)
