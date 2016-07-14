@@ -1,9 +1,7 @@
 Detector Web Interface
 ==========================
-The *app* is written in mostly javascript, and hopefully will use a deployment engine at some point. Currently installation is done with a bash script.
-
 ## Install
-Installation guide for a raspberry pi, these commands require sudo. the setup.sh script will do the same.
+Installation guide for a raspberry pi, these commands require sudo.
 
 ### Download
 If git is not installed.
@@ -30,3 +28,6 @@ Then just copy the files over, and change mode.
 cp -R ./* /var/www/detectorWebInterface
 chmod -R 755 /var/www/detectorWebInterface/*
 ```
+## Resources
+[Setting up a Wifi Dongle on the raspberryPi](https://gist.github.com/ahruschka/4ae8e51a4af98182195cd9286a39a1c6)
+[Fixing the date on GSU NTP servers](https://gist.github.com/ahruschka/4d7949a97257172971481bec3c902bca)
