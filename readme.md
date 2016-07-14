@@ -30,5 +30,3 @@ Then just copy the files over, and change mode.
 cp -R ./* /var/www/detectorWebInterface
 chmod -R 755 /var/www/detectorWebInterface/*
 ```
-
-# detectorWebInterface
