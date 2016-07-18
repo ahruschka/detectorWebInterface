@@ -1,6 +1,6 @@
 var dataSet;
 var dataName;
-var date;
+var timeStamp;
 var startDate;
 var dataArray;
 
@@ -16,27 +16,48 @@ function show(){
   dataSet=this.response.split("\r\n");
   dataName = dataSet.shift().split("\n");
   var dateArray= dataName[0].split("_");
-  date = new Date(dateArray[0],dateArray[1]-1,dateArray[2],dateArray[4],dateArray[5],dateArray[6]);
+  timeStamp = new Date(dateArray[0],dateArray[1]-1,dateArray[2],dateArray[4],dateArray[5],dateArray[6]);
   startDate = new Date(dateArray[0],dateArray[1]-1,dateArray[2],dateArray[4],dateArray[5],dateArray[6]);
   //pre.textContent=this.response.split("\r\n");
-  document.body.appendChild(pre)
+  // document.body.appendChild(pre)
+}
+function simple_moving_averager(period) {
+    var nums = [];
+    return function(num) {
+        nums.push(num);
+        if (nums.length > period)
+            nums.splice(0,1);  // remove the first element of the array
+        var sum = 0;
+        for (var i in nums)
+            sum += nums[i];
+        var n = period;
+        if (nums.length < period)
+            n = nums.length;
+        return(sum/n);
+    }
 }
 
-// read("http://"+location.hostname+"2016_07_12__14_28_28.log");
-read("http://131.96.182.121/2016_07_12__14_28_28.log");
+var sma = simple_moving_averager(60);
+// for (var i in data) {
+//   var n = data[i];
+//   console.log("Next number = " + n + ", SMA_3 = " + sma3(n) + ", SMA_5 = " + sma5(n));
+// }
+
+read("http://"+location.hostname+"/2016_07_14__12_43_25.log");
 google.charts.load('current', {'packages':['line']});
 google.charts.setOnLoadCallback(drawChart);
 
 function drawChart() {
   var data = new google.visualization.DataTable();
-  data.addColumn('string', 'Time');
-  data.addColumn('number', 'CPM');
+  data.addColumn('date', 'Time');
+  data.addColumn('number', 'RollingAVG');
 
   for (i = 0; i < dataSet.length-1; i++) {
-    date.setTime(date.getTime()+60000);
-    if(i<5){
-    }
-    data.addRow([date.toString(), Number(dataSet[i])]);
+    timeStamp.setTime(timeStamp.getTime()+60000);
+    data.addRow([
+      new Date(timeStamp.getTime()),
+      sma(Number(dataSet[i]))
+    ]);
   }
 
   var options = {
@@ -48,16 +69,16 @@ function drawChart() {
       viewWindowMode:'explicit',
       viewWindow:{
         max: 'auto',
-        min:0
+        min: 'auto'
       }
     },
     explorer: {
     },
     backgroundColor: 'transparent',
-    //height:400,
-    legend: {
-      position: 'none'
-    }
+    // height:400,
+    // legend: {
+    //   position: 'none'
+    // }
   };
 
   var chart = new google.charts.Line(document.getElementById('linechart_material'));
