@@ -30,13 +30,16 @@ function show(){
   //Andrew Test
   var total = 0;
   var i;
-  var j;
-  for(i=0;i<((dataSet.length)/60)-1;i++){
-    for(j=(60*i);j<(i*60+60);j++){
-      total = total + Number(dataSet[j]);
+  var c = 0;
+  for(i=0;i<(dataSet.length)-1;i++){
+    if(c==60){
+      hourArray.push(total/60);
+      total = 0;
+      c = 0;
+    }else{
+      total = total + Number(dataSet[i]);
+      c++;
     }
-    hourArray.push(total/60);
-    total = 0;
   }
 
   //pre.textContent=this.response.split("\r\n");
@@ -58,50 +61,89 @@ function simple_moving_averager(period) {
   }
 }
 
-var sma = simple_moving_averager(60);
+var sma = simple_moving_averager(6);
 
 read("http://"+location.hostname+"/2016_07_18__14_45_30.log");
-google.charts.load('current', {'packages':['line']});
+google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(drawChart);
 
 function drawChart() {
   var data = new google.visualization.DataTable();
   data.addColumn('date', 'Time');
   data.addColumn('number', 'Counts');
+  data.addColumn('number','Rolling Average')
 
-  for (i = 0; i < dataSet.length-1; i++) {
-    timeStamp.setTime(timeStamp.getTime()+60000);
+  for (i = 0; i < hourArray.length-1; i++) {
+    timeStamp.setTime(timeStamp.getTime()+3600000);
     data.addRow([
       new Date(timeStamp.getTime()),
-      //hourArray[i]
-      sma(Number(dataSet[i]))
+      hourArray[i],
+      sma(Number(hourArray[i]))
     ]);
   }
 
   var options = {
-    chart:{
-      title: 'Double Paddle Detector',
-      subtitle: 'Start Time: ' + startDate.toString(),
+    // chart:{
+    //   title: 'Double Paddle Detector',
+    //   subtitle: 'Start Time: ' + startDate.toString(),
+    // },
+    title: 'Double Paddle Detector',
+    titleTextStyle:{
+      color: '#839496',
+      fontName: '"Avant Garde",Avantgarde,"Century Gothic",CenturyGothic,AppleGothic,sans-serif',
+      fontSize: '30',
+      bold: false
     },
     vAxis: {
+      gridlines: {
+        color: '073642'
+      },
       viewWindowMode:'explicit',
       viewWindow:{
         max: 'auto',
         min: 'auto'
+      },
+      textStyle:{
+        color: '#93a1a1'
+      }
+    },
+    hAxis: {
+      gridlines: {
+        color: '073642'
+      },
+      textStyle:{
+        color: '#93a1a1'
       }
     },
     explorer: {
+      axis: 'horizontal',
+      keepInBounds: true,
+      maxZoomOut: 1
+    },
+    series: {
+      0: {
+        axis: 'Counts',
+        color: '#eee8d5',
+        pointSize: 3
+      },
+      1: {
+        axis: 'Rolling Average',
+        lineWidth: 3,
+        color: '#6c71c4',
+        // pointSize: 1,
+        pointsVisible: 0
+      }
     },
     backgroundColor: 'transparent',
     // height:400,
-    // legend: {
-    //   position: 'none'
-    // }
+    legend: {
+      position: 'none'
+    }
   };
 
-  var chart = new google.charts.Line(document.getElementById('linechart_material'));
+  var chart = new google.visualization.ScatterChart(document.getElementById('linechart_material'));
 
-  chart.draw(data, google.charts.Line.convertOptions(options));
+  chart.draw(data, options);
 }
 
 window.onresize=function(){
