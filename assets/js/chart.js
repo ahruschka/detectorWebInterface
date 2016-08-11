@@ -10,6 +10,29 @@ var buffer = document.getElementById("buffer").value;
 document.getElementById("bufferValue").innerHTML=buffer;
 var sma = simple_moving_averager(buffer*60/span);
 var smaArray = new Array;
+var logName = '2016_08_08__16_35_03.log';
+var link = "http://"+location.hostname+"/"+logName;
+
+window.onload = function(){
+  document.getElementById("iconRow").appendChild(createButton("fa-file-text-o", link));
+  document.getElementById("iconRow").appendChild(createButton("fa-github", "https://github.com/ahruschka/detectorWebInterface"));
+};
+
+function createButton(icon, link){
+
+  var a = document.createElement("a");
+  var li = document.createElement("li");
+
+  a.className += (" icon");
+  a.className += (" ");
+  a.className += (icon);
+  a.setAttribute("href",link);
+
+  li.appendChild(a);
+
+  return li;
+
+}
 
 function simple_moving_averager(period){
   smaArray = [];
@@ -83,7 +106,7 @@ function formatData(x) {
   }
 }
 
-read("http://"+location.hostname+"/2016_08_08__16_35_03.log");
+read(link);
 google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(drawChart);
 
