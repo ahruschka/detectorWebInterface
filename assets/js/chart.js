@@ -84,7 +84,7 @@ function formatData(x) {
 }
 
 
-read("http://"+location.hostname+"/2016_07_18__14_45_30.log");
+read("http://"+location.hostname+"/2016_08_08__16_35_03.log");
 google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(drawChart);
 
