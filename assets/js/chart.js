@@ -83,7 +83,6 @@ function formatData(x) {
   }
 }
 
-
 read("http://"+location.hostname+"/2016_08_08__16_35_03.log");
 google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(drawChart);
@@ -100,8 +99,8 @@ function drawChart() {
     timeAdvance.setTime(timeAdvance.getTime()+(span*60000));
     data.addRow([
       new Date(timeAdvance.getTime()),
-      spanArray[i],
-      smaArray[i]
+      (spanArray[i]*span),
+      (smaArray[i]*span)
     ]);
   }
 
