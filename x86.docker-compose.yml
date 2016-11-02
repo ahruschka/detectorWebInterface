@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: x86.Dockerfile
+    logging:
+      driver: "none"
+    volumes:
+      - ./nginx:/usr/share/nginx/html:ro
+    ports:
+      - "80:80"
+      - "443:443"

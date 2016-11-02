@@ -1,60 +1,67 @@
+const fs = require('fs'); //Accsess the filesystem
+var config = require('./config');
 var GPIO = require('onoff').Gpio; // Constructor function for Gpio objects.
-var led = new GPIO(14, 'out');    // Export GPIO #14 as an output.
-//its an array of arrays
-var pins = [
-    ['One and Two   :', 22],
-    ['One and Three :', 27],
-    ['One and Four  :', 17],
-    ['Two and Three :', 06],
-    ['Two and Four  :', 26],
-    ['Three and Four:', 05],
-];
 
-console.log('1&2,1&3,1&4,2&3,2&4,3&4');
+var led = new GPIO(14, 'out');    // Export GPIO #14 as an output.
+var pins = config.pins;
+
+//create a file, named by the start time
+var fileName = new Date().toISOString();
+var header = "date,";
+for (pin in pins) {
+    header += pins[pin][0];
+    if (pin < pins.length - 1) {
+        header += ",";
+    }
+}
+header += "\n";
+
+fs.writeFile(fileName + ".log", header, function (err) {
+    if (err) throw err;
+    console.log("Logging started in " + fileName);
+});
 
 setInterval(function () {
-    console.log(
-        pins[0][2].count + ',' +
-        pins[1][2].count + ',' +
-        pins[2][2].count + ',' +
-        pins[3][2].count + ',' +
-        pins[4][2].count + ',' +
-        pins[5][2].count
-    );
-    for(pin in pins){
-        pin[2].count=0;
+    var logLine = new Date().toISOString() + ",";
+    for (pin in pins) {
+        logLine += pins[pin][2].count.toString();
+        pins[pin][2].count = 0;
+        if (pin < pins.length - 1) {
+            logLine += ",";
+        } else {
+            logLine += "\n";
+        }
     }
-    // pins[0][2].count = 0;
-    // pins[1][2].count = 0;
-    // pins[2][2].count = 0;
-    // pins[3][2].count = 0;
-    // pins[4][2].count = 0;
-    // pins[5][2].count = 0;
-    //console.log(" ");
-}, 60000);
+    fs.appendFile(fileName + ".log", logLine, function (err) {
+    });
+}, 5000);
 
-for (i = 0; i < pins.length; i++) {
-    pins[i].push(new coincidence(pins[i][1]));
+for (pin in pins) {
+    pins[pin].push(new coincidence(pins[pin][1]));
+    pins[pin][2].number.watch(function (err, value) {
+        pins[pin][2].count++;
+    });
 }
 
-pins[0][2].number.watch(function (err, value) {
-    pins[0][2].count++;
-});
-pins[1][2].number.watch(function (err, value) {
-    pins[1][2].count++;
-});
-pins[2][2].number.watch(function (err, value) {
-    pins[2][2].count++;
-});
-pins[3][2].number.watch(function (err, value) {
-    pins[3][2].count++;
-});
-pins[4][2].number.watch(function (err, value) {
-    pins[4][2].count++;
-});
-pins[5][2].number.watch(function (err, value) {
-    pins[5][2].count++;
-});
+
+// pins[0][2].number.watch(function (err, value) {
+//     pins[0][2].count++;
+// });
+// pins[1][2].number.watch(function (err, value) {
+//     pins[1][2].count++;
+// });
+// pins[2][2].number.watch(function (err, value) {
+//     pins[2][2].count++;
+// });
+// pins[3][2].number.watch(function (err, value) {
+//     pins[3][2].count++;
+// });
+// pins[4][2].number.watch(function (err, value) {
+//     pins[4][2].count++;
+// });
+// pins[5][2].number.watch(function (err, value) {
+//     pins[5][2].count++;
+// });
 
 function coincidence(number) {
     this.number = new GPIO(number, 'in', 'falling');

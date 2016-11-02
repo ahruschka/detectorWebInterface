@@ -8,13 +8,21 @@ Installation guide for a raspberry pi, these commands require sudo.
 ### Download
 If git is not installed.
 ```bash
-apt-get -y update
-apt-get -y install git
+sudo apt-get -y update
+sudo apt-get -y install git
 ```
 Then just clone this repository.
 ```bash
 git clone https://github.com/ahruschka/detectorWebInterface
 ```
+
+### Run
+On the Raspberry Pi, running the docker conatiners.
+```bash
+docker-compose up --file arm.docker-compose.yml --build
+```
+## Testing
+For testing I generally mount a windows share on board, that involves installing SAMBA
 
 ### Copy Files
 If you are updating, or installing after changes were made.

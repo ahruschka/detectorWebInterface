@@ -5,10 +5,11 @@
   "author": "Sawaiz Syed asyed5@gsu.edu",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "npm install --no-bin-links && nodemon -L --debug=5858 server.js"
   },
   "dependencies": {
     "onoff": "*",
-    "nodemon": "*"
+    "nodemon": "*",
+    "express": "*"
   }
 }
