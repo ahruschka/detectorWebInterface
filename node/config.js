@@ -1,6 +1,7 @@
 var config = {};
 
 config.apiPort = 8000;
+config.logDir = "./logs"
 
 //its an array of arrays
 config.pins = [

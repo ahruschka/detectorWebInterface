@@ -19,10 +19,13 @@ git clone https://github.com/ahruschka/detectorWebInterface
 ### Run
 On the Raspberry Pi, running the docker conatiners.
 ```bash
-docker-compose up --file arm.docker-compose.yml --build
+docker-compose --file arm.docker-compose.yml up --build
 ```
 ## Testing
-For testing I generally mount a windows share on board, that involves installing SAMBA
+For testing I generally mount a windows share on board, that involves mounting the windows share so files can be directly modified
+```bash
+sudo mount -t cifs //<ip.address.host>/detectorWebInterface /home/cosmic/detectorWebInterface -o username=sawaiz
+```
 
 ### Copy Files
 If you are updating, or installing after changes were made.

@@ -4,13 +4,63 @@ var chartTitle = "Cosmic Ray Muon Flux";
 var chartData;
 var chartOptions;
 //Name and location of main file
-var dataFile = "http://" + location.hostname + "/" + "twoPaddleData.log";
+var dataFile;
+//apiRoot location
+var apiRoot = "http://" + location.hostname + "/api";
 //Global rawData array [startTime,headerLines,data,span,buffer]
 var rawData = [];
 
-//Read in the text File, and kick off initial graphing
+//Read in the possible files, and kick off initial graphing
 function readFile() {
-    read(dataFile);
+    getFileList();
+
+    //Get the list of log files
+    function getFileList() {
+        var xhr = new XMLHttpRequest;
+        xhr.open('GET', apiRoot + "/logs");
+        xhr.onload = updateFileList;
+        xhr.send();
+    }
+
+    //Update the files availible and render the newest one
+    function updateFileList() {
+        fileList = JSON.parse(this.response)
+        dataFile = apiRoot + "/logs/" + fileList[fileList.length - 1];
+        read(dataFile);
+        for (file in fileList) {
+            document.getElementById("iconRow").appendChild(createButton("fa-file-text-o", apiRoot + "/logs/" + fileList[file]));
+            document.getElementById("logFiles").appendChild(changeFileButton("fa-file-text-o", apiRoot + "/logs/" + fileList[file]));
+        }
+    }
+
+    //Adding an icon button
+    function createButton(icon, link) {
+        var a = document.createElement("a");
+        var li = document.createElement("li");
+
+        a.className += (" icon");
+        a.className += (" ");
+        a.className += (icon);
+        a.setAttribute("href", link);
+
+        li.appendChild(a);
+
+        return li;
+    }
+
+    function changeFileButton(icon, link) {
+        var a = document.createElement("a");
+        var li = document.createElement("li");
+
+        a.className += (" icon");
+        a.className += (" ");
+        a.className += (icon);
+        var onClickString = "read('" + String(link) + "');"
+        a.setAttribute("onclick", onClickString);
+        li.appendChild(a);
+
+        return li;
+    }
 }
 
 //Read the text file
@@ -24,44 +74,48 @@ function read(textFile) {
 function processFile() {
     //First split the title from the file
     var dataSet = this.response.split("\n");
-    //Store the start date string in 'startDate'
-    var startDate = dataSet.shift().split("_");
-    //Convert the date string to a unix timeStamp
-    startDate = new Date(startDate[0], startDate[1] - 1, startDate[2], startDate[4], startDate[5], startDate[6]);
-    //Removes counts before first hour
-    if ((59 - startDate.getMinutes()) != 0) {
-        var extras = 59 - startDate.getMinutes();
-        for (var i = 0; i < extras; i++) {
-            startDate.setTime(startDate.getTime() + 60000);
-        }
-    }
     //Strip the collumn header off, this is what will define the lines drawn
     var columnHeader = dataSet.shift().split(",");
     for (line in dataSet) {
         dataSet[line] = dataSet[line].split(",");
+    }
+    // //Store the start date string in 'startDate'
+    var startDate = new Date(dataSet[1][0]);
+    // //Removes counts before first hour
+    // if ((59 - startDate.getMinutes()) != 0) {
+    //     var extras = 59 - startDate.getMinutes();
+    //     for (var i = 0; i < extras; i++) {
+    //         startDate.setTime(startDate.getTime() + 60000);
+    //     }
+    // }
+    //remove the date from all rows, convert to numbers from strings
+    columnHeader.shift();
+    for (line in dataSet) {
+        dataSet[line].shift();
         for (counts in dataSet[line]) {
             dataSet[line][counts] = Number(dataSet[line][counts]);
         }
     }
-    //Remove the last line as it may be incomplete
-    dataSet.pop();
+
     //Custom graph function
     rawData[0] = startDate;
     rawData[1] = columnHeader;
     rawData[2] = dataSet;
 
-    //---------------------------------------------
-    //Here is where we get to manipulate the data
-    //----------------------------------------------
-    //Once you remove a collumn, its gone immedeatly
-    removeCollumn(0);
-    //So original collumn 5 becomes 4
-    removeCollumn(4);
-    //Average collums averages them, and then places them in 0
-    averageCollumns([0, 1, 2, 3]);
-    //And then just change the name, so it isnt refrenceing just one channel
-    //We assume the knowlege that we started with 6 cahnnels, and one is left
-    rawData[1][0] = "Counts";
+    console.log(rawData);
+
+    // //---------------------------------------------
+    // //Here is where we get to manipulate the data
+    // //----------------------------------------------
+    // //Once you remove a collumn, its gone immedeatly
+    // removeCollumn(0);
+    // //So original collumn 5 becomes 4
+    // removeCollumn(4);
+    // //Average collums averages them, and then places them in 0
+    // averageCollumns([0, 1, 2, 3]);
+    // //And then just change the name, so it isnt refrenceing just one channel
+    // //We assume the knowlege that we started with 6 cahnnels, and one is left
+    // rawData[1][0] = "Counts";
 
     //Trigger spanBuffer changed, to update the shown values
     spanBufferChanged();
@@ -81,15 +135,15 @@ function averageCollumns(collumnsList) {
     //This will average the collum numbers given to it in a array
     for (line in rawData[2]) {
         var average = 0;
-        for(collumn in collumnsList){
+        for (collumn in collumnsList) {
             average += rawData[2][line][collumn]
         }
         //And put it in the first items place
-        rawData[2][line][collumnsList[0]] = average/collumnsList.length;
+        rawData[2][line][collumnsList[0]] = average / collumnsList.length;
         average = 0;
     }
     //Now remove all the rest
-    while(collumnsList.length > 1){
+    while (collumnsList.length > 1) {
         removeCollumn(collumnsList.pop())
     }
 }
@@ -277,8 +331,9 @@ function drawChart() {
 //On loading the webpage, various housekeeping
 window.onload = function () {
     //Add Icons
-    document.getElementById("iconRow").appendChild(createButton("fa-file-text-o", dataFile));
     document.getElementById("iconRow").appendChild(createButton("fa-github", "https://github.com/ahruschka/detectorWebInterface"));
+    document.getElementById("iconRow").appendChild(createButton("fa-play", apiRoot + "/beginLog?duration=60000"));
+    document.getElementById("iconRow").appendChild(createButton("fa-stop", apiRoot + "/stopLog"));
 
     //Adding an icon button
     function createButton(icon, link) {

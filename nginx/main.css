@@ -172,6 +172,11 @@ body, input, select, textarea {
 	display: none;
 }
 
+#logFiles a {
+    cursor:pointer;
+    cursor:hand;
+}
+
 /* List */
 
 ul {
