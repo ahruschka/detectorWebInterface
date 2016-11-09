@@ -41,7 +41,10 @@ router.get('/beginLog', function (req, res) {
 router.get('/stopLog', function (req, res) {
     if (logging) {
         clearInterval(logging.interval);
-        res.json({sucsess: "logging stopped", data: logging.data});        
+        res.json({ sucsess: "logging stopped", data: logging.data });
+        for (pin in pins) {
+            pins[pin][2].number.unwatchAll();
+        }
         logging = undefined;
     } else {
         res.json({ error: "Not Currently Logging" });
@@ -50,14 +53,14 @@ router.get('/stopLog', function (req, res) {
 });
 
 router.get('/logs', function (req, res) {
-    fs.readdir(config.logDir, function(err, files){
+    fs.readdir(config.logDir, function (err, files) {
         res.json(files);
-  });    
+    });
 });
 
 router.get('/logs/:log', function (req, res) {
     var log = req.params.log.toString();
-    res.sendFile(log, {root: config.logDir});
+    res.sendFile(log, { root: config.logDir });
 });
 
 // REGISTER OUR ROUTES -------------------------------
